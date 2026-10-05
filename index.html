@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080d13">
+  <title>Simulador mecánico · 5 GDL</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">Σ</div>
+      <div>
+        <div class="eyebrow">ELECTROACÚSTICA · DINÁMICA</div>
+        <h1>Simulador mecánico · 5 GDL</h1>
+        <p>Modelo masa–resorte–amortiguamiento con nodo central sin masa y excitación de fuerza.</p>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div class="simulation-state" id="engineState">
+        <span class="state-dot"></span>
+        <span id="engineStateText">DETENIDO</span>
+      </div>
+      <button class="ghost" id="resetDefaultsBtn" type="button">Restablecer</button>
+      <button class="primary" id="runBtn" type="button">▶ Iniciar</button>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <!-- CONTROLES -->
+    <aside class="sidebar">
+      <section class="panel control-panel">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">CONTROL</div>
+            <h2>Parámetros del modelo</h2>
+          </div>
+        </div>
+
+        <div class="sync-banner">
+          <b>Slider ↔ valor</b>
+          <span>Ambos controles están vinculados y actualizan el modelo en tiempo real.</span>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Excitación</div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>F₀ <span>[N]</span></label><output id="F0Out">10.00</output></div>
+            <div class="slider-number">
+              <input id="F0" type="range" min="0" max="100" step="0.1" value="10">
+              <input id="F0num" class="number-input" type="number" min="0" step="0.1" value="10">
+            </div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>f <span>[Hz]</span></label><output id="fExcOut">2.00</output></div>
+            <div class="slider-number">
+              <input id="fExc" type="range" min="0.1" max="50" step="0.1" value="2">
+              <input id="fExcnum" class="number-input" type="number" min="0.01" step="0.01" value="2">
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Masas</div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>M₁ <span>[kg]</span></label><output id="M1Out">1.00</output></div>
+            <div class="slider-number"><input id="M1" type="range" min=".05" max="20" step=".01" value="1"><input id="M1num" class="number-input" type="number" min=".001" step=".01" value="1"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>M₂ <span>[kg]</span></label><output id="M2Out">0.80</output></div>
+            <div class="slider-number"><input id="M2" type="range" min=".05" max="20" step=".01" value=".8"><input id="M2num" class="number-input" type="number" min=".001" step=".01" value=".8"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>M₃ <span>[kg]</span></label><output id="M3Out">1.20</output></div>
+            <div class="slider-number"><input id="M3" type="range" min=".05" max="20" step=".01" value="1.2"><input id="M3num" class="number-input" type="number" min=".001" step=".01" value="1.2"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>M₄ <span>[kg]</span></label><output id="M4Out">1.20</output></div>
+            <div class="slider-number"><input id="M4" type="range" min=".05" max="20" step=".01" value="1.2"><input id="M4num" class="number-input" type="number" min=".001" step=".01" value="1.2"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>M₅ <span>[kg]</span></label><output id="M5Out">1.00</output></div>
+            <div class="slider-number"><input id="M5" type="range" min=".05" max="20" step=".01" value="1"><input id="M5num" class="number-input" type="number" min=".001" step=".01" value="1"></div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Resortes</div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>K₁ <span>[N/m]</span></label><output id="K1Out">1000</output></div>
+            <div class="slider-number"><input id="K1" type="range" min="0" max="10000" step="1" value="1000"><input id="K1num" class="number-input" type="number" min="0" step="1" value="1000"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>K₂ <span>[N/m]</span></label><output id="K2Out">700</output></div>
+            <div class="slider-number"><input id="K2" type="range" min="0" max="10000" step="1" value="700"><input id="K2num" class="number-input" type="number" min="0" step="1" value="700"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>K₃ <span>[N/m]</span></label><output id="K3Out">500</output></div>
+            <div class="slider-number"><input id="K3" type="range" min="0" max="10000" step="1" value="500"><input id="K3num" class="number-input" type="number" min="0" step="1" value="500"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>K₄ <span>[N/m]</span></label><output id="K4Out">1200</output></div>
+            <div class="slider-number"><input id="K4" type="range" min="0" max="10000" step="1" value="1200"><input id="K4num" class="number-input" type="number" min="0" step="1" value="1200"></div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Fricción viscosa</div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>B₁ · M₁/piso <span>[N·s/m]</span></label><output id="B1Out">5.00</output></div>
+            <div class="slider-number"><input id="B1" type="range" min="0" max="100" step=".1" value="5"><input id="B1num" class="number-input" type="number" min="0" step=".1" value="5"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>B₂ · M₂/M₄ <span>[N·s/m]</span></label><output id="B2Out">3.00</output></div>
+            <div class="slider-number"><input id="B2" type="range" min="0" max="100" step=".1" value="3"><input id="B2num" class="number-input" type="number" min="0" step=".1" value="3"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>B₃ · M₃/M₄ <span>[N·s/m]</span></label><output id="B3Out">4.00</output></div>
+            <div class="slider-number"><input id="B3" type="range" min="0" max="100" step=".1" value="4"><input id="B3num" class="number-input" type="number" min="0" step=".1" value="4"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>B₄ · M₄/M₅ <span>[N·s/m]</span></label><output id="B4Out">5.00</output></div>
+            <div class="slider-number"><input id="B4" type="range" min="0" max="100" step=".1" value="5"><input id="B4num" class="number-input" type="number" min="0" step=".1" value="5"></div>
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>B₅ · M₅/piso <span>[N·s/m]</span></label><output id="B5Out">5.00</output></div>
+            <div class="slider-number"><input id="B5" type="range" min="0" max="100" step=".1" value="5"><input id="B5num" class="number-input" type="number" min="0" step=".1" value="5"></div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <div class="group-title">Simulación</div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>Velocidad visual</label><output id="speedOut">0.35×</output></div>
+            <input id="speed" type="range" min=".05" max="4" step=".05" value=".35">
+          </div>
+
+          <div class="parameter-row">
+            <div class="label-line"><label>Escala del movimiento</label><output id="visualScaleOut">55×</output></div>
+            <input id="visualScale" type="range" min="10" max="160" step="5" value="55">
+          </div>
+        </div>
+
+        <div class="panel-actions">
+          <button class="primary wide" id="applyBtn" type="button">Aplicar cambios</button>
+          <button class="ghost wide" id="zeroBtn" type="button">Poner estados en cero</button>
+        </div>
+
+        <div class="error-box" id="errorBox" aria-live="polite"></div>
+      </section>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="content">
+
+      <!-- Diagrama grande arriba -->
+      <section class="panel mechanism-card">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">SIMULACIÓN</div>
+            <h2>Topología y movimiento</h2>
+          </div>
+          <div class="diagram-meta">Nodo de separación y nodo de reunión: sin masa</div>
+        </div>
+        <canvas id="mechanismCanvas" aria-label="Diagrama animado del sistema mecánico"></canvas>
+        <div class="diagram-caption">
+          <span><b>F(t)</b> fuerza aplicada entre pared y M₁</span>
+          <span><b>B₁</b> M₁–piso</span>
+          <span><b>B₂</b> M₂–M₄</span>
+          <span><b>B₃</b> M₃–M₄</span>
+          <span><b>B₄</b> M₄–M₅</span>
+          <span><b>B₅</b> M₅–piso</span>
+        </div>
+      </section>
+
+      <!-- Velocidades debajo del diagrama -->
+      <section class="panel velocity-card">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">ESTADO INSTANTÁNEO</div>
+            <h2>Velocidad de cada masa</h2>
+          </div>
+          <div class="live-clock" id="liveClock">t = 0.000 s</div>
+        </div>
+
+        <div class="velocity-grid" id="velocityGrid"></div>
+
+        <div class="force-strip">
+          <div class="force-head"><span>F(t)</span><b id="forceNow">0.00 N</b></div>
+          <div class="meter-track"><div id="forceFill"></div></div>
+        </div>
+
+        <div class="status-strip">
+          <div><span>Δt interno</span><b id="dtReadout">—</b></div>
+          <div><span>FPS</span><b id="fpsReadout">—</b></div>
+          <div><span>Muestras</span><b id="samplesReadout">0</b></div>
+          <div><span>Velocidad promedio</span><b id="avgSpeedReadout">0.000 m/s</b></div>
+          <div><span>Frecuencia de excitación</span><b id="regimeReadout">—</b></div>
+        </div>
+      </section>
+
+      <!-- Análisis temporal -->
+      <section class="panel chart-card">
+        <div class="section-head">
+            <div>
+              <div class="section-kicker">ANÁLISIS</div>
+              <h2>Respuesta temporal</h2>
+            </div>
+            <div class="chart-controls">
+              <select id="timeQuantity">
+                <option value="velocity">Velocidad</option>
+                <option value="displacement">Desplazamiento</option>
+                <option value="acceleration">Aceleración</option>
+              </select>
+              <select id="timeWindow">
+                <option value="4">4 s</option>
+                <option value="8" selected>8 s</option>
+                <option value="12">12 s</option>
+                <option value="20">20 s</option>
+              </select>
+            </div>
+        </div>
+        <canvas id="timeChart" class="chart" aria-label="Respuesta temporal"></canvas>
+      </section>
+
+      <!-- Telemetría -->
+      <section class="panel telemetry-card">
+        <div class="section-head">
+            <div>
+              <div class="section-kicker">TELEMETRÍA</div>
+              <h2>Estado actual</h2>
+            </div>
+            <button class="ghost" id="exportBtn" type="button">Exportar CSV</button>
+        </div>
+
+        <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Componente</th>
+                  <th>u [m]</th>
+                  <th>v [m/s]</th>
+                  <th>a [m/s²]</th>
+                  <th>pico |v|</th>
+                </tr>
+              </thead>
+              <tbody id="telemetryBody"></tbody>
+            </table>
+        </div>
+      </section>
+
+      <section class="panel model-card">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">MODELO</div>
+            <h2>Ecuación utilizada</h2>
+          </div>
+        </div>
+        <div class="equation">M q̈ + C q̇ + K q = F(t)</div>
+        <p>
+          q = [u₁, u₂, u₃, u₄, u₅]ᵀ. El nodo entre K₁–K₂–K₃ no tiene masa y se elimina mediante condensación estática; no se introduce como un sexto grado de libertad.
+        </p>
+      </section>
+
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Simulador local · JavaScript puro · sin librerías externas</span>
+    <span>Convención: M₁–M₅ según el esquema mecánico.</span>
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
